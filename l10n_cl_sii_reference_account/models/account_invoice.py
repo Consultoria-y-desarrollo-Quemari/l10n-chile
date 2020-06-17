@@ -63,9 +63,9 @@ class AccountInvoice(models.Model):
         ref = self.env['sii.reference']
         if sol and sol.order_id.client_order_ref:
             ref.create(self.prepare_ref_values(sol.order_id))
-        if sol and sol.blanket_order_line:
-            ref.create(self.prepare_ref_values(
-                sol.blanket_order_line.order_id))
+        # if sol and sol.blanket_order_line:
+        #     ref.create(self.prepare_ref_values(
+        #         sol.blanket_order_line.order_id))
         for picking in sol.order_id.picking_ids.filtered(
                 lambda x:
                 x.class_id.id is not False and

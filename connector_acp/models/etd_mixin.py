@@ -136,15 +136,15 @@ class EtdMixin(models.AbstractModel):
             if etd_file.validator and etd_file.file_type == "xml":
                 # Check the rendered file against the validator
                 validator = base64.b64decode(etd_file.validator).decode("utf-8")
-                try:
-                    xmlschema = etree.XMLSchema(validator)
-                    xml_doc = etree.fromstring(file_text)
-                    result = xmlschema.validate(xml_doc)
-                    if not result:
-                        xmlschema.assert_(xml_doc)
-                except AssertionError as e:
-                    _logger.warning(etree.tostring(xml_doc))
-                    raise UserError(_("XML Malformed Error: %s") % e.args)
+                # try:
+                #     xmlschema = etree.XMLSchema(validator)
+                #     xml_doc = etree.fromstring(file_text)
+                #     result = xmlschema.validate(xml_doc)
+                #     if not result:
+                #         xmlschema.assert_(xml_doc)
+                # except AssertionError as e:
+                #     _logger.warning(etree.tostring(xml_doc))
+                #     raise UserError(_("XML Malformed Error: %s") % e.args)
 
             if etd_file.save:
                 # Attach file to the record

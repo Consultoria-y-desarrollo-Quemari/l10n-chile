@@ -17,21 +17,20 @@ class StockPicking(models.Model):
     def action_done(self):
         res = super(StockPicking, self).action_done()
         for rec in self:
-            sign = rec._name in [x.model for x in rec.company_id.etd_ids]
-            if sign and rec.location_dest_id.usage == 'customer':
-                rec.with_delay().document_sign()
+            if self.use_documents:
+                sign = rec._name in [x.model for x in rec.company_id.etd_ids]
+                if sign and rec.location_dest_id.usage == 'customer':
+                    rec.with_delay().document_sign()
         return res
 
     @api.model
     def create(self, vals):
         if vals.get('partner_id'):
             partner = self.env['res.partner'].browse(vals.get('partner_id'))
-            if partner and partner.invoicing_policy == 'eguide':
-                sii_obj = self.env['sii.document.class']
-                sii_document = sii_obj.search(
-                    [('name', 'ilike', 'Guía de Despacho Electrónica'),
-                     ('prefix', '=', 'GDE'),
-                     ('code', '=', 52),
-                     ('document_type', '=', 'stock_picking')], limit=1)
-                vals.update({'class_id': sii_document and sii_document.id})
+            # if partner and partner.invoicing_policy == 'eguide':
+            sii_obj = self.env['sii.document.class']
+            sii_document = sii_obj.search(
+                [('code', '=', 52),
+                 ('document_type', '=', 'stock_picking')], limit=1)
+            vals.update({'class_id': sii_document and sii_document.id})
         return super(StockPicking, self).create(vals)

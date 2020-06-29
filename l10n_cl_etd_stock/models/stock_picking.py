@@ -10,6 +10,32 @@ class StockPicking(models.Model):
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'etd.mixin']
 
+    @api.multi
+    def get_barcode_img(self, columns=13, ratio=3):
+        barcodefile = BytesIO()
+        image = self.pdf417bc(self.sii_barcode, columns, ratio)
+        image.save(barcodefile, 'PNG')
+        data = barcodefile.getvalue()
+        return base64.b64encode(data)
+
+    def _get_barcode_img(self):
+        for r in self:
+            if r.sii_barcode:
+                r.sii_barcode_img = r.get_barcode_img()
+
+    sii_barcode = fields.Char(
+            copy=False,
+            string=_('SII Barcode'),
+            help='SII Barcode Name',
+            readonly=True,
+            states={'draft': [('readonly', False)]},
+        )
+    sii_barcode_img = fields.Binary(
+            string=_('SII Barcode Image'),
+            help='SII Barcode Image in PDF417 format',
+            compute="_get_barcode_img",
+        )
+
     def _compute_class_id_domain(self):
         return [('document_type', '=', 'stock_picking')]
 

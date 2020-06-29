@@ -10,6 +10,17 @@ from odoo.exceptions import ValidationError
 class ResCompany(models.Model):
     _inherit = "res.company"
 
+    dte_resolution_number = fields.Char(
+            string='SII Exempt Resolution Number',
+            help='''This value must be provided \
+and must appear in your pdf or printed tribute document, under the electronic \
+stamp to be legally valid.''',
+            default='0',
+    )
+    dte_resolution_date = fields.Date(
+            'SII Exempt Resolution Date',
+    )
+
     @api.constrains('backend_acp_id')
     def _check_backend_acp_id(self):
         """

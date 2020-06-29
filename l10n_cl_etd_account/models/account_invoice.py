@@ -64,7 +64,6 @@ class AccountInvoice(models.Model):
             string=_('SII Barcode'),
             help='SII Barcode Name',
             readonly=True,
-            states={'draft': [('readonly', False)]},
         )
     sii_barcode_img = fields.Binary(
             string=_('SII Barcode Image'),

@@ -13,6 +13,10 @@ try:
     import pdf417gen
 except ImportError:
     _logger.warning('Cannot import pdf417gen library')
+try:
+    import base64
+except ImportError:
+    _logger.warning('Cannot import base64 library')
 
 
 class StockPicking(models.Model):

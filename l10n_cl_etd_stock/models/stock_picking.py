@@ -5,10 +5,33 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from odoo import api, models
 
+try:
+    from io import BytesIO
+except:
+    _logger.warning("no se ha cargado io")
+try:
+    import pdf417gen
+except ImportError:
+    _logger.warning('Cannot import pdf417gen library')
+
 
 class StockPicking(models.Model):
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'etd.mixin']
+
+    def pdf417bc(self, ted, columns=13, ratio=3):
+        bc = pdf417gen.encode(
+            ted,
+            security_level=5,
+            columns=columns,
+        )
+        image = pdf417gen.render_image(
+            bc,
+            padding=15,
+            scale=1,
+            ratio=ratio,
+        )
+        return image
 
     @api.multi
     def get_barcode_img(self, columns=13, ratio=3):

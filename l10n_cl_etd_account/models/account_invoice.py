@@ -36,6 +36,30 @@ class AccountInvoice(models.Model):
     _name = 'account.invoice'
     _inherit = ['account.invoice', 'etd.mixin']
 
+    medio_pago = fields.Selection([
+            ("CH", "Cheque"),
+            ("CF", "Cheque a fecha"),
+            ("LT", "letra"),
+            ("EF", "Efectivo"),
+            ("PE", "Pago A Cta. Cte."),
+            ("TC", "Tarjeta Crédito"),
+            ("OT", "Otro")
+        ],
+        string="Medio Pago",
+    )
+
+    forma_pago = fields.Selection(
+            [
+                    ('1', 'Contado'),
+                    ('2', 'Crédito'),
+                    ('3', 'Gratuito')
+            ],
+            string="Forma de pago",
+            readonly=True,
+            states={'draft': [('readonly', False)]},
+            default='1',
+        )
+
     def pdf417bc(self, ted, columns=13, ratio=3):
         bc = pdf417gen.encode(
             ted,

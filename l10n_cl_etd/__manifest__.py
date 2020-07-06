@@ -27,6 +27,7 @@
     "data": [
         "data/backend.acp.csv",
         "data/res.country.csv",
+        "views/res_company.xml"
     ],
     "application": False,
     "development_status": "Beta",

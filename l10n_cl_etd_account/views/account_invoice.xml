@@ -8,6 +8,11 @@
             <field name="payment_term_id" position="before">
                 <field name="class_id"/>
             </field>
+            <field name="class_id" position="after">
+                <field name="medio_pago"/>
+                <field name="forma_pago"/>
+
+            </field>
         </field>
     </record>
 

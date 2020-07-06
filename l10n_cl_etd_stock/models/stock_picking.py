@@ -3,12 +3,65 @@
 # Copyright (C) 2019 CubicERP
 # Copyright (C) 2019 Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import api, models
+from odoo import api, models, fields, _
+
+try:
+    from io import BytesIO
+except:
+    _logger.warning("no se ha cargado io")
+try:
+    import pdf417gen
+except ImportError:
+    _logger.warning('Cannot import pdf417gen library')
+try:
+    import base64
+except ImportError:
+    _logger.warning('Cannot import base64 library')
 
 
 class StockPicking(models.Model):
     _name = 'stock.picking'
     _inherit = ['stock.picking', 'etd.mixin']
+
+    def pdf417bc(self, ted, columns=13, ratio=3):
+        bc = pdf417gen.encode(
+            ted,
+            security_level=5,
+            columns=columns,
+        )
+        image = pdf417gen.render_image(
+            bc,
+            padding=15,
+            scale=1,
+            ratio=ratio,
+        )
+        return image
+
+    @api.multi
+    def get_barcode_img(self, columns=13, ratio=3):
+        barcodefile = BytesIO()
+        image = self.pdf417bc(self.sii_barcode, columns, ratio)
+        image.save(barcodefile, 'PNG')
+        data = barcodefile.getvalue()
+        return base64.b64encode(data)
+
+    def _get_barcode_img(self):
+        for r in self:
+            if r.sii_barcode:
+                r.sii_barcode_img = r.get_barcode_img()
+
+    sii_barcode = fields.Char(
+            copy=False,
+            string=_('SII Barcode'),
+            help='SII Barcode Name',
+            readonly=True,
+            states={'draft': [('readonly', False)]},
+        )
+    sii_barcode_img = fields.Binary(
+            string=_('SII Barcode Image'),
+            help='SII Barcode Image in PDF417 format',
+            compute="_get_barcode_img",
+        )
 
     def _compute_class_id_domain(self):
         return [('document_type', '=', 'stock_picking')]

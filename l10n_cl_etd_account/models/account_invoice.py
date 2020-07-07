@@ -59,9 +59,7 @@ class AccountInvoice(models.Model):
                     ('3', 'Gratuito')
             ],
             string="Forma de pago",
-            readonly=True,
-            states={'draft': [('readonly', False)]},
-            default='1',
+            default='1'
         )
 
     def pdf417bc(self, ted, columns=13, ratio=3):

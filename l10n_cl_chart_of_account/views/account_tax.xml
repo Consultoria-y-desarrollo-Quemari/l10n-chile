@@ -65,7 +65,7 @@
             </field>
         </field>
     </record>
-
+<!-- 
     <record id="view_invoice_tax_tree" model="ir.ui.view">
         <field name="name">account.invoice.tax.sii.tree</field>
         <field name="model">account.invoice.tax</field>
@@ -91,9 +91,9 @@
     </record>
 
     <record id="view_invoice_form" model="ir.ui.view">
-        <field name="model">account.invoice</field>
+        <field name="model">account.move</field>
         <field name="name">account.invoice.sii.form</field>
-        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page/field[@name='tax_line_ids']/tree/field[@name='account_id']"
                    position="after">
@@ -112,7 +112,7 @@
 
     <record id="view_supplier_invoice_form" model="ir.ui.view">
         <field name="name">l10n_cl.invoice.form</field>
-        <field name="model">account.invoice</field>
+        <field name="model">account.move</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='tax_line_ids']/tree/field[@name='account_id']"
@@ -128,6 +128,6 @@
                        attrs="{'invisible':[('amount_retention', '=', 0)]}"/>
             </field>
         </field>
-    </record>
+    </record> -->
 
 </odoo>

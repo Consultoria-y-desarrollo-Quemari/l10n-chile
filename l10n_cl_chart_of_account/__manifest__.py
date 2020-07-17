@@ -12,8 +12,8 @@
     "depends": ["account"],
     "data": [
         "data/l10n_cl_chart_of_account_data.xml",
-        "data/account_tax_data.xml",
         "data/account_chart_template_data.xml",
+        "data/account_tax_data.xml",
         "data/account_journal.xml",
         "views/account_tax.xml",
         "views/menu.xml",

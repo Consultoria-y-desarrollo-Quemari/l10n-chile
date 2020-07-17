@@ -5,7 +5,7 @@ from odoo import fields, models
 
 
 class AccountInvoiceTax(models.Model):
-    _inherit = "account.invoice.tax"
+    _inherit = "account.move.line"
 
     amount_retention = fields.Monetary(string="Retention", default=0.00)
     retention_account_id = fields.Many2one(

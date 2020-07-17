@@ -20,6 +20,7 @@
         "l10n_cl_chart_of_account",
         "l10n_cl_invoicing_policy",
         "l10n_cl_sii_reference_account",
+        "l10n_latam_invoice_document",
     ],
     "data": [
         "security/ir.model.access.csv",

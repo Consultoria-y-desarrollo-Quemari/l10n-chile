@@ -11,7 +11,7 @@ class ResCompany(models.Model):
 
     etd_ids = fields.Many2many("etd.document", string="Documents To Sign")
     signer = fields.Selection(
-        (("odoo", "Odoo"), ("backend", "Authorized Certification Provider")),
+        [("odoo", "Odoo"), ("backend", "Authorized Certification Provider")],
         string="Who is signing?",
         required=True,
         default="odoo",

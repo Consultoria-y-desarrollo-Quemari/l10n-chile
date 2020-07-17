@@ -17,7 +17,7 @@ class BackendAcp(models.Model):
     password = fields.Char(string="Password",)
     active = fields.Boolean(string="Active", default=True)
     status = fields.Selection(
-        (("unconfirmed", "Unconfirmed"), ("confirmed", "Confirmed")),
+        [("unconfirmed", "Unconfirmed"), ("confirmed", "Confirmed")],
         default="unconfirmed",
         required="True",
     )

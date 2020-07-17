@@ -50,7 +50,6 @@
         <field name="name">ACP Backends</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">backend.acp</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
 
@@ -58,7 +57,6 @@
         <field name="name">ETD Documents</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">etd.document</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
 

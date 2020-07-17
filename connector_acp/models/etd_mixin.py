@@ -153,7 +153,7 @@ class EtdMixin(models.AbstractModel):
                         "name": file_name,
                         "type": "binary",
                         "datas": base64.b64encode(file_text.encode("utf-8")),
-                        "datas_fname": file_name,
+                        "store_fname": file_name,
                         "res_model": rec._name,
                         "res_id": rec.id,
                     }

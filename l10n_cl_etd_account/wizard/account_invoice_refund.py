@@ -6,11 +6,11 @@ from odoo import api, models
 class AccountInvoiceRefund(models.TransientModel):
     _inherit = 'account.invoice.refund'
 
-    @api.multi
+
     def compute_refund(self, mode='refund'):
         res = super().compute_refund(mode)
         if mode == 'modify':
-            inv_obj = self.env['account.invoice']
+            inv_obj = self.env['account.move']
             context = dict(self._context or {})
             for invoice in inv_obj.browse(context.get('active_ids')):
                 # Get the doc of the refund

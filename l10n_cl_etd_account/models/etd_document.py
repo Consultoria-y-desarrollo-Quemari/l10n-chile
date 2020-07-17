@@ -9,4 +9,4 @@ from odoo import fields, models
 class EtdDocument(models.Model):
     _inherit = "etd.document"
 
-    model = fields.Selection(selection_add=[("account.invoice", "Invoice")])
+    model = fields.Selection(selection_add=[("account.move", "Invoice")])

@@ -3,7 +3,21 @@
 # Copyright (C) 2019 CubicERP
 # Copyright (C) 2019 Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import api, models
+from odoo import api, models, fields, _
+
+try:
+    from io import BytesIO
+except:
+    _logger.warning("no se ha cargado io")
+
+try:
+    import pdf417gen
+except ImportError:
+    _logger.warning('Cannot import pdf417gen library')
+try:
+    import base64
+except ImportError:
+    _logger.warning('Cannot import base64 library')
 
 
 SII_MAPPING = {
@@ -18,8 +32,71 @@ SII_MAPPING = {
 
 
 class AccountInvoice(models.Model):
-    _name = 'account.invoice'
-    _inherit = ['account.invoice', 'etd.mixin']
+    _name = 'account.move'
+    _inherit = ['account.move', 'etd.mixin']
+
+
+    medio_pago = fields.Selection([
+            ("CH", "Cheque"),
+            ("CF", "Cheque a fecha"),
+            ("LT", "letra"),
+            ("EF", "Efectivo"),
+            ("PE", "Pago A Cta. Cte."),
+            ("TC", "Tarjeta Crédito"),
+            ("OT", "Otro")
+        ],
+        string="Medio Pago",
+    )
+
+    forma_pago = fields.Selection(
+            [
+                    ('1', 'Contado'),
+                    ('2', 'Crédito'),
+                    ('3', 'Gratuito')
+            ],
+            string="Forma de pago",
+            readonly=True,
+            states={'draft': [('readonly', False)]},
+            default='1',
+        )
+
+    def pdf417bc(self, ted, columns=13, ratio=3):
+        bc = pdf417gen.encode(
+            ted,
+            security_level=5,
+            columns=columns,
+        )
+        image = pdf417gen.render_image(
+            bc,
+            padding=15,
+            scale=1,
+            ratio=ratio,
+        )
+        return image
+
+    def get_barcode_img(self, columns=13, ratio=3):
+        barcodefile = BytesIO()
+        image = self.pdf417bc(self.sii_barcode, columns, ratio)
+        image.save(barcodefile, 'PNG')
+        data = barcodefile.getvalue()
+        return base64.b64encode(data)
+
+    def _get_barcode_img(self):
+        for r in self:
+            if r.sii_barcode:
+                r.sii_barcode_img = r.get_barcode_img()
+
+    sii_barcode = fields.Char(
+            copy=False,
+            string=_('SII Barcode'),
+            help='SII Barcode Name',
+            readonly=True,
+        )
+    sii_barcode_img = fields.Binary(
+            string=_('SII Barcode Image'),
+            help='SII Barcode Image in PDF417 format',
+            compute="_get_barcode_img",
+        )
 
     def _compute_class_id_domain(self):
         return [('document_type', 'in', ('invoice', 'invoice_in',
@@ -32,9 +109,8 @@ class AccountInvoice(models.Model):
         #     or not x.invoicing_policy)
         return res
 
-    @api.multi
-    def invoice_validate(self):
-        res = super().invoice_validate()
+    def action_post(self):
+        res = super().action_post()
         sign = self._name in [x.model for x in self.company_id.etd_ids]
         for invoice in self:
             if sign and invoice.type in ('out_invoice', 'out_refund'):
@@ -50,7 +126,6 @@ class AccountInvoice(models.Model):
             ('code', '=', sii_code)
         ], limit=1)
 
-    @api.multi
     @api.returns('self')
     def refund(self, date_invoice=None, date=None, description=None,
                journal_id=None):
@@ -64,38 +139,47 @@ class AccountInvoice(models.Model):
 
     @api.model
     def create(self, vals):
-        if not vals.get('class_id', False):
-            # Default: Factura Electrónica
-            sii_code = 33
-            if vals.get('type', False) == 'out_invoice':
-                # Get partner
-                partner = self.env['res.partner'].browse(
-                    vals.get('partner_id', False))
-                if partner.invoicing_policy == 'ticket':
-                    # Boleta Electrónica
-                    sii_code = 39
-            elif vals.get('type', False) == 'out_refund':
-                # Nota de crédito Electrónica
-                sii_code = 61
-            if sii_code:
+        if not vals.get('class_id', False):          
+            sii_code_id = vals.get('l10n_latam_document_type_id', False)
+            if sii_code_id:
+                sii_code = self.env['l10n_latam.document.type'].search([('id','=', sii_code_id)]).code
                 vals.update({
-                    'class_id': self.env['sii.document.class'].search([
-                        ('code', '=', sii_code)
-                    ], limit=1).id or False
-                })
+                        'class_id': self.env['sii.document.class'].search([
+                            ('code', '=', sii_code)
+                        ], limit=1).id or False
+                    })
+            else:
+                # Default: Factura Electrónica
+                sii_code = 33
+                if vals.get('type', False) == 'out_invoice':
+                    # Get partner
+                    partner = self.env['res.partner'].browse(
+                        vals.get('partner_id', False))
+                    if partner.invoicing_policy == 'ticket':
+                        # Boleta Electrónica
+                        sii_code = 39
+                elif vals.get('type', False) == 'out_refund':
+                    # Nota de crédito Electrónica
+                    sii_code = 61
+                if sii_code:
+                    vals.update({
+                        'class_id': self.env['sii.document.class'].search([
+                            ('code', '=', sii_code)
+                        ], limit=1).id or False
+                    })
         return super().create(vals)
 
-    @api.depends('tax_line_ids')
-    def compute_sii_document_class(self):
-        for rec in self:
-            if not rec.tax_line_ids:
-                # Boleta Electrónica (39) -> Boleta Electrónica Exenta (41)
-                if rec.class_id and rec.class_id.code == 39:
-                    rec.class_id = self.env['sii.document.class'].search([
-                        ('code', '=', 41)
-                    ], limit=1).id or False
-                # Factura Electrónica (33) -> Factura Electrónica Exenta (34)
-                if rec.class_id and rec.class_id.code == 33:
-                    rec.class_id = self.env['sii.document.class'].search([
-                        ('code', '=', 34)
-                    ], limit=1).id or False
+    # @api.depends('tax_line_ids')
+    # def compute_sii_document_class(self):
+    #     for rec in self:
+    #         if not rec.tax_line_ids:
+    #             # Boleta Electrónica (39) -> Boleta Electrónica Exenta (41)
+    #             if rec.class_id and rec.class_id.code == 39:
+    #                 rec.class_id = self.env['sii.document.class'].search([
+    #                     ('code', '=', 41)
+    #                 ], limit=1).id or False
+    #             # Factura Electrónica (33) -> Factura Electrónica Exenta (34)
+    #             if rec.class_id and rec.class_id.code == 33:
+    #                 rec.class_id = self.env['sii.document.class'].search([
+    #                     ('code', '=', 34)
+    #                 ], limit=1).id or False

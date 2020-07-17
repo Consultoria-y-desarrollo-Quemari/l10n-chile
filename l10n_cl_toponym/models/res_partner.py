@@ -50,7 +50,6 @@ class ResPartner(models.Model):
             elif len(vat) != 12:
                 raise UserError(_("The VAT is not valid."))
 
-    @api.multi
     @api.constrains('vat')
     def check_vat(self):
         for rec in self:

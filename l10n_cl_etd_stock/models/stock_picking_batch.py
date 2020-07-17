@@ -10,7 +10,6 @@ class StockPickingBatch(models.Model):
     def _compute_class_id_domain(self):
         return [('document_type', '=', 'stock_picking')]
 
-    @api.multi
     def done(self):
         res = super().done()
         for rec in self:

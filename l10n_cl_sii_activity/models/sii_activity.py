@@ -10,7 +10,6 @@ class SiiActivity(models.Model):
     _name = "sii.activity"
     _description = "SII Economic Activity"
 
-    @api.multi
     def name_get(self):
         res = []
         for r in self:
@@ -34,15 +33,15 @@ class SiiActivity(models.Model):
     parent_id = fields.Many2one("sii.activity", string="Parent Activity",
                                 ondelete="cascade", index=True)
     name = fields.Char(string="Complete Name", required=True, translate=True)
-    vat_affected = fields.Selection((
+    vat_affected = fields.Selection([
         ("SI", "Yes"),
         ("NO", "No"),
-        ("ND", "Not Available")),
+        ("ND", "Not Available")],
         string="VAT Affected", required=True, translate=True, default="yes")
-    tax_category = fields.Selection((
+    tax_category = fields.Selection([
         ("1", "1"),
         ("2", "2"),
-        ("ND", "Not Available")),
+        ("ND", "Not Available")],
         string="Tax Category", required=True, translate=True, default="1")
     internet_available = fields.Boolean(string="Available on the Internet",
                                         default=True)

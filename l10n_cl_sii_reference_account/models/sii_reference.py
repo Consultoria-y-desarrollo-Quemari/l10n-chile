@@ -9,7 +9,7 @@ from odoo import api, fields, models
 class SiiReference(models.Model):
     _inherit = "sii.reference"
 
-    invoice_id = fields.Many2one("account.invoice", string="Invoice",
+    invoice_id = fields.Many2one("account.move", string="Invoice",
                                  ondelete="cascade", index=True, copy=False)
 
     _sql_constraints = [(

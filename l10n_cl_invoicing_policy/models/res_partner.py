@@ -19,9 +19,9 @@ class ResPartner(models.Model):
         return 'ticket'
 
     invoicing_policy = fields.Selection(
-        (("ticket", "Ticket"),
+        [("ticket", "Ticket"),
          ("invoice", "Invoice"),
-         ("eguide", "Electronic Guide")),
+         ("eguide", "Electronic Guide")],
         string="Invoicing Policy", required=True,
         default=_default_invoicing_policy,
         help="""
@@ -34,7 +34,6 @@ class ResPartner(models.Model):
           1 invoice at the end of the month for all the delivery orders of
           that month.""")
 
-    @api.multi
     @api.constrains('is_company', 'invoicing_policy', 'parent_id')
     def check_invoicing_policy(self):
         for rec in self:

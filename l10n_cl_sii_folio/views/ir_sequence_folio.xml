@@ -34,8 +34,8 @@
         </field>
     </record>
 
-    <record id="view_dte_caf_tree" model="ir.ui.view">
-        <field name="name">CAF</field>
+    <!-- <record id="view_dte_caf_tree" model="ir.ui.view">
+        <field name="name">ir.sequence.folio.tree</field>
         <field name="model">ir.sequence.folio</field>
         <field name="arch" type="xml">
             <tree string="CAF Files" colors="blue:status == 'draft';black:status == 'in_use';gray:status == 'spent';red:status == 'cancelled'">
@@ -49,13 +49,12 @@
                 <field name="status" />
             </tree>
         </field>
-    </record>
+    </record> -->
 
     <record model="ir.actions.act_window" id="action_caf_files">
         <field name="name">SII CAF Files for DTE</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">ir.sequence.folio</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">Please input CAF File</p>

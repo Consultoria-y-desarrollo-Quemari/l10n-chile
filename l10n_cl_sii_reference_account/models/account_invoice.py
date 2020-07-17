@@ -6,8 +6,8 @@
 from odoo import api, fields, models
 
 
-class AccountInvoice(models.Model):
-    _inherit = "account.invoice"
+class AccountMove(models.Model):
+    _inherit = 'account.move'
 
     reference_ids = fields.One2many(
         "sii.reference", "invoice_id", readonly=True,
@@ -16,7 +16,7 @@ class AccountInvoice(models.Model):
     def prepare_ref_values(self, record=False):
         res = {}
         if record:
-            if record._name == 'account.invoice':
+            if record._name == 'account.move':
                 res.update({
                     'name': record.number,
                     'motive': record.name,
@@ -73,19 +73,18 @@ class AccountInvoice(models.Model):
             ref.create(self.prepare_ref_values(picking))
         return True
 
-    @api.depends('refund_invoice_id', 'invoice_lines')
+    @api.depends('invoice_lines')
     def compute_refs(self):
         for rec in self:
             if not rec.reference_ids:
-                ref = self.env['sii.reference']
-                if rec.refund_invoice_id:
-                    ref.create(rec.prepare_ref_values(rec.refund_invoice_id))
-                elif rec.invoice_line_ids:
+                # ref = self.env['sii.reference']
+                # if rec.refund_invoice_id:
+                #     ref.create(rec.prepare_ref_values(rec.refund_invoice_id))
+                if rec.invoice_line_ids:
                     for line in rec.invoice_line_ids:
                         for sol in line.sale_line_ids:
                             rec.create_refs_from_sol(sol)
 
-    @api.multi
     def write(self, vals):
         res = super().write(vals)
         for rec in self.filtered(lambda x: x.state == 'draft'):

@@ -13,7 +13,6 @@ class StockPicking(models.Model):
     def _compute_class_id_domain(self):
         return [('document_type', '=', 'stock_picking')]
 
-    @api.multi
     def action_done(self):
         res = super(StockPicking, self).action_done()
         for rec in self:

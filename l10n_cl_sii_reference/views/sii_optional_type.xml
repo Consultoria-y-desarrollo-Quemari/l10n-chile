@@ -30,7 +30,6 @@
         <field name="name">SII Optional type</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">sii.optional.type</field>
-        <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
     </record>
 

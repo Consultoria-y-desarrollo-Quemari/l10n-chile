@@ -18,7 +18,7 @@ class AccountInvoice(models.Model):
         if record:
             if record._name == 'account.invoice':
                 res.update({
-                    'name': record.number,
+                    'name': record.folioDTE,
                     'motive': record.name,
                     'code': "1",
                     'date': record.date_invoice,
